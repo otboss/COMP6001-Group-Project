@@ -19,9 +19,10 @@ class Balances:
     def getWalletBalance(self, walletAddress: str) -> float:
         return self.__balances[walletAddress]
 
-    def triggerRebound(self) -> None:
-        # TODO:
-        pass
+    def triggerRebound(self, val) -> None:
+        share = val / len(dict.keys(self.__balances))
+        for balance in self.__balances:
+            self.__balances[balance] -= share
 
     def getInterestRate(self) -> float:
         return self.__interestRate

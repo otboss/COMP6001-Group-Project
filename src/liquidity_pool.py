@@ -21,13 +21,15 @@ class LiquidityPool:
     def getK(self) -> float:
         return self.__initialX * self.__initialY
 
-    def buyX(self, y: float) -> float:
+    def sellY(self, y: float) -> float:
         deltaX = self.getK() / (self.__y - y) - self.__x
         self.__x -= deltaX
         self.__y += y
-
         if ((self.__y / self.__x) / (self.__initialY / self.__initialX)) * 100 >= self.__reboundTriggerPercentage:
-            self.__reboundTriggerCallback()
+            rebound_amount = 0
+            # TODO: Get function to calculate the total amount to be burned as part of rebound
+            # rebound_amount = (y / self.__x) / (self.__initialY / self.__initialX) = 1
+            self.__reboundTriggerCallback(rebound_amount)
 
         return deltaX
 
@@ -38,7 +40,7 @@ class LiquidityPool:
         return deltaY
 
     def getPriceX(self) -> float:
-        return self.__y/self.__x
+        return self.__x/self.__y
 
     def getPriceY(self) -> float:
         return self.__y/self.__x
