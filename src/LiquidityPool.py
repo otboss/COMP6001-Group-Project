@@ -8,9 +8,9 @@ class LiquidityPool:
     __initialY: float = 0
     __creationTimestamp: int = trunc(time()*1000)
     __reboundTriggerPercentage: float = 0
-    __reboundTriggerCallback: function
+    __reboundTriggerCallback: None
 
-    def __init__(self, x: float, y: float, reboundTriggerPercentage: float, reboundTriggerCallback:function) -> None:
+    def __init__(self, x: float, y: float, reboundTriggerPercentage: float, reboundTriggerCallback:None) -> None:
         self.__x = x
         self.__y = y
         self.__initialX = x
