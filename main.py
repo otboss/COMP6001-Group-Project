@@ -49,35 +49,37 @@ def main():
         print("missing argument. All parameters are required, use --help for more information")
         sys.exit(1)
 
-    for arg in range(len(sys.argv)[1:]):
-        if sys.argv[arg] in dict.keys(all_params):
-            if sys.argv[arg + 1] == None:
-                print("missing argument for "+sys.argv[arg])
+    param = sys.argv[1:]
+    for arg in range(0, len(param), 2):
+        if param[arg] in dict.keys(all_params):
+            if param[arg + 1] == None:
+                print("missing argument for "+param[arg])
                 sys.exit(1)
             value = None
             try:
-                expected_type: str = type(arguments[format_argument(sys.argv[arg])]).__name__
+                expected_type: str = type(getattr(arguments, format_argument(param[arg]))).__name__
                 if expected_type == "int":
-                    value = int(sys.argv[arg + 1])
+                    value = int(param[arg + 1])
                 if expected_type == "float":
-                    value = float(sys.argv[arg + 1])
+                    value = float(param[arg + 1])
                 if expected_type == "str":
-                    value = str(sys.argv[arg + 1])
+                    value = str(param[arg + 1])
                 if expected_type == "bool":
-                    value = sys.argv[arg + 1].lower() == "true"
+                    value = param[arg + 1].lower() == "true"
             except ValueError:
-                print("invalid argument type for "+sys.argv[arg]+". Argument must be of type "+ type(arguments[format_argument(sys.argv[arg])]).__name__)
+                print("invalid argument type for "+param[arg]+". Argument must be of type "+ type(getattr(arguments, format_argument(param[arg]))).__name__)
                 sys.exit(1)
             except Exception as e:
                 print(e)
                 sys.exit(1)
-            arguments[format_argument(sys.argv[arg])] = value
+            setattr(arguments, format_argument(param[arg]), value)
         else:
+            print(param[arg])
             print("invalid argument passed. Use --help for more information")
             sys.exit(1)
 
     smart_contract = Balances(
-        arguments.interest_rate,
+        arguments.interest_rate_percentage,
         arguments.interest_period_in_days,
     )
 
@@ -103,39 +105,51 @@ def main():
     folder_path = "%s/%s"%(output_path, str(datetime.now()))
     os.makedirs(folder_path)
 
-
     price_log_path = "%s/%s"%(folder_path, "prices.csv")
     price_log_file = open(price_log_path, "a")
-    price_log_file.write("price_y,total_x_supply,total_y_supply,timestamp")
+    price_log_file.write("price_y,total_x_supply,total_y_supply,timestamp\n")
     price_log_file.close()
+
+    transaction_log_path = "%s/%s"%(folder_path, "transactions.csv")
+    transaction_log_file = open(transaction_log_path, "a")
+    transaction_log_file.write("transaction,buyer,quantity,wallet_balance,timestamp\n")
+    transaction_log_file.close()
 
     # Start simulation
     while get_current_timestamp() - start_time <= arguments.execution_duration_in_days * 24 * 60 * 60 * 1000:
-        time.sleep(random.randint(arguments.min_transaction_time, arguments.max_transaction_time))
+        time.sleep(random.uniform(arguments.min_transaction_time, arguments.max_transaction_time))
         selected_address = user_addresses[random.randint(0, len(user_addresses)-1)]
         selected_operation: Operations = random.choices(list(Operations), weights=(arguments.buy_sell_ratio, 1-arguments.buy_sell_ratio), k=1)[0]
         wallet_balance = smart_contract.getWalletBalance(selected_address)
+        quantity = 0
 
         if wallet_balance == 0 or selected_operation == Operations.BUY:
-            bought_tokens = liquidity_pool.buyY(
+            selected_operation = Operations.BUY
+            quantity = liquidity_pool.buyY(
                 random.randint(
                     arguments.min_transaction_amount,
                     arguments.max_transaction_amount,
                 )
             )
-            smart_contract.setWalletBalance(selected_address, bought_tokens)
+            wallet_balance += quantity
+            smart_contract.setWalletBalance(selected_address, wallet_balance)
 
         if selected_operation == Operations.SELL:
-            sold_tokens = random.uniform(
+            quantity = random.uniform(
                 wallet_balance * 0.25,
                 wallet_balance,
             )
-            liquidity_pool.sellY(sold_tokens)
-            smart_contract.setWalletBalance(selected_address, sold_tokens)
+            liquidity_pool.sellY(quantity)
+            wallet_balance -= quantity
+            smart_contract.setWalletBalance(selected_address, wallet_balance)
 
         price_log_file = open(price_log_path, "a")
-        price_log_file.write("%f,%f,%f,%s"%(liquidity_pool.getPriceY(), liquidity_pool.getX(), liquidity_pool.getY(), str(datetime.now())))
-        price_log_file.close()    
+        price_log_file.write("%f,%f,%f,%s\n"%(liquidity_pool.getPriceY(), liquidity_pool.getX(), liquidity_pool.getY(), str(datetime.now())))
+        price_log_file.close()
+
+        transaction_log_file = open(transaction_log_path, "a")
+        transaction_log_file.write("%s,%s,%f,%s,%s\n"%(selected_operation.name, selected_address, quantity, wallet_balance, str(datetime.now())))
+        transaction_log_file.close()
     sys.exit(0)
 
 if __name__ == "__main__":

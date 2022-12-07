@@ -22,7 +22,7 @@ class LiquidityPool:
         return self.__initial_x * self.__initial_y
 
     def sellY(self, y: float) -> float:
-        deltaX = self.getK() / (self.__y - y) - self.__x
+        deltaX = (self.getK() / (self.__y - y)) - self.__x
         self.__x -= deltaX
         self.__y += y
 
@@ -35,7 +35,7 @@ class LiquidityPool:
         return deltaX
 
     def buyY(self, x: float) -> float:
-        deltaY = self.__y - self.getK() / (self.__x + x)
+        deltaY = self.__y - (self.getK() / (self.__x + x))
         self.__x += x
         self.__y -= deltaY
         return deltaY
