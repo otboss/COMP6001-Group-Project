@@ -10,6 +10,8 @@ from src.util.apply_interest import apply_interest
 import sys
 import time
 import random
+import os
+from datetime import datetime
 
 def main():
     start_time: int = get_current_timestamp()
@@ -19,7 +21,7 @@ def main():
         "--rebound-trigger-percentage": "the inflation percent that will trigger an inflationary reset",
         "--interest-rate-percentage": "the percent interest rate wallets will attain",
         "--interest-period-in-days": "the time period in days when all accounts should attain interest",
-        "--buy-sell-ratio": "the ratio of buy to sell orders of the simulation",
+        "--buy-sell-ratio": "the ratio of buy to sell orders of the simulation (a number from 0-1)",
         "--token-y-count": "the amount of token y to initialize the liquidity pool with",
         "--token-x-count": "the amount of token x to initialize the liquidity pool with",
         "--min-transaction-amount": "the minimum token y a user should buy in the simulation",
@@ -95,6 +97,18 @@ def main():
         smart_contract.setWalletBalance(address, 0)
         user_addresses.append(address)
 
+    output_path = "./output"
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+    folder_path = "%s/%s"%(output_path, str(datetime.now()))
+    os.makedirs(folder_path)
+
+
+    price_log_path = "%s/%s"%(folder_path, "prices.csv")
+    price_log_file = open(price_log_path, "a")
+    price_log_file.write("price_y,total_x_supply,total_y_supply,timestamp")
+    price_log_file.close()
+
     # Start simulation
     while get_current_timestamp() - start_time <= arguments.execution_duration_in_days * 24 * 60 * 60 * 1000:
         time.sleep(random.randint(arguments.min_transaction_time, arguments.max_transaction_time))
@@ -119,7 +133,9 @@ def main():
             liquidity_pool.sellY(sold_tokens)
             smart_contract.setWalletBalance(selected_address, sold_tokens)
 
-    # TODO: print findings
+        price_log_file = open(price_log_path, "a")
+        price_log_file.write("%f,%f,%f,%s"%(liquidity_pool.getPriceY(), liquidity_pool.getX(), liquidity_pool.getY(), str(datetime.now())))
+        price_log_file.close()    
     sys.exit(0)
 
 if __name__ == "__main__":

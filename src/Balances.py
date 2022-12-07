@@ -2,16 +2,16 @@ from datetime import timedelta
 
 class Balances:
     __balances: dict[str, float] = {}
-    __interestRate: float = 0
-    __interestPeriod: timedelta = timedelta(days=365.25)
+    __interest_rate: float = 0
+    __interest_period: timedelta = timedelta(days=365.25)
 
     def __init__(self, interestRate: float, interestPeriod: timedelta) -> None:
-        self.__interestRate = interestRate
-        self.__interestPeriod = interestPeriod
+        self.__interest_rate = interestRate
+        self.__interest_period = interestPeriod
 
     def addInterest(self) -> None:
         for walletAddress in self.__balances:
-            self.__balances[walletAddress] += self.__balances[walletAddress] * self.__interestRate / 100
+            self.__balances[walletAddress] += self.__balances[walletAddress] * self.__interest_rate / 100
     
     def setWalletBalance(self, walletAddress: str, balance: float) -> None:
         self.__balances[walletAddress] = balance
@@ -25,7 +25,7 @@ class Balances:
             self.__balances[balance] -= share
 
     def getInterestRate(self) -> float:
-        return self.__interestRate
+        return self.__interest_rate
 
     def getInterestPeriod(self) -> timedelta:
-        return self.__interestPeriod
+        return self.__interest_period
