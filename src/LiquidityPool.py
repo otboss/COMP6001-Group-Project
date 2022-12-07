@@ -30,12 +30,15 @@ class LiquidityPool:
         self.__y += y
 
         # TODO: Review rebound implementation
-        rebound_trigger_quantity = (self.__initial_y / self.__initial_x) * self.__rebound_trigger_percentage/100
-        if ((self.__y / self.__x) / (self.__initial_y / self.__initial_x)) >= rebound_trigger_quantity:
+        if 100 - (self.__y / self.__x) / (self.__initial_y / self.__initial_x) * 100 >= self.__rebound_trigger_percentage:
             rebound_amount = (self.__x * self.__initial_y) / self.__initial_x
             self.__rebound_trigger_callback(rebound_amount)
 
         return deltaX
+
+    def calculateInflationPercent(self):
+        rebound_trigger_quantity = (self.__initial_y / self.__initial_x) * self.__rebound_trigger_percentage/100
+        return 100 - (self.__y / self.__x) / (self.__initial_y / self.__initial_x) * 100
 
     def buyY(self, x: float) -> float:
         deltaY = self.__y - (self.getK() / (self.__x + x))

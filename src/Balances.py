@@ -23,6 +23,9 @@ class Balances:
     def triggerRebound(self, val) -> None:
         share = val / len(dict.keys(self.__balances))
         for balance in self.__balances:
+            if self.__balances[balance] - share < 0:
+                self.__balances[balance] = 0
+                continue
             self.__balances[balance] -= share
 
     def getInterestRate(self) -> float:
