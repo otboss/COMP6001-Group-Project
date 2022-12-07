@@ -1,5 +1,6 @@
 from time import time
 from math import trunc
+from src.exceptions.insufficient_funds_exception import InsufficientFundsException
 
 class LiquidityPool:
     __x: float = 0
@@ -23,6 +24,8 @@ class LiquidityPool:
 
     def sellY(self, y: float) -> float:
         deltaX = (self.getK() / (self.__y - y)) - self.__x
+        if self.__x < deltaX:
+            raise InsufficientFundsException("not enough x tokens left in pool to disburse")
         self.__x -= deltaX
         self.__y += y
 
@@ -36,6 +39,8 @@ class LiquidityPool:
 
     def buyY(self, x: float) -> float:
         deltaY = self.__y - (self.getK() / (self.__x + x))
+        if self.__y < deltaY:
+            raise InsufficientFundsException("not enough y tokens left in pool to disburse")        
         self.__x += x
         self.__y -= deltaY
         return deltaY

@@ -80,8 +80,10 @@ def main():
 
     smart_contract = Balances(
         arguments.interest_rate_percentage,
-        arguments.interest_period_in_days,
+        arguments.interest_period_in_days
     )
+
+    print(smart_contract.getInterestPeriod())
 
     liquidity_pool = LiquidityPool(
         arguments.token_x_count,
