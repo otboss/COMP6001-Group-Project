@@ -74,7 +74,6 @@ def main():
                 sys.exit(1)
             setattr(arguments, format_argument(param[arg]), value)
         else:
-            print(param[arg])
             print("invalid argument passed. Use --help for more information")
             sys.exit(1)
 
@@ -82,8 +81,6 @@ def main():
         arguments.interest_rate_percentage,
         arguments.interest_period_in_days
     )
-
-    print(smart_contract.getInterestPeriod())
 
     liquidity_pool = LiquidityPool(
         arguments.token_x_count,

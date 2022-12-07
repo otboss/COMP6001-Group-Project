@@ -10,7 +10,6 @@ class Balances:
         self.__interest_period_in_days = interestPeriod
 
     def addInterest(self) -> None:
-        print("INTERST TRIGGERED")
         for walletAddress in self.__balances:
             self.__balances[walletAddress] += self.__balances[walletAddress] * self.__interest_rate / 100
     
@@ -31,5 +30,5 @@ class Balances:
     def getInterestRate(self) -> float:
         return self.__interest_rate
 
-    def getInterestPeriod(self) -> timedelta:
+    def getInterestPeriod(self) -> float:
         return self.__interest_period_in_days
