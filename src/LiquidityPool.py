@@ -8,6 +8,8 @@ class LiquidityPool:
     __initial_x: float = 0.0
     __initial_y: float = 0.0
     __all_time_high_y: float = 0.0
+    __all_time_high_x_token_count: float = 0.0
+    __all_time_high_y_token_count: float = 0.0
     __creation_timestamp: int = trunc(time()*1000)
     __daily_take_profit_coefficient: float = 0.3
     __total_daily_withdrawl: dict[str, float] = {}
@@ -79,6 +81,19 @@ class LiquidityPool:
 
     def getAllTimeHighY(self) -> float:
         return self.__all_time_high_y
+
+    def setAllTimeHighXTokenCount(self, x: float) -> None:
+        self.__all_time_high_x_token_count = x
+
+    def getAllTimeHighXTokenCount(self) -> float:
+        return self.__all_time_high_x_token_count
+
+    def setAllTimeHighYTokenCount(self, y: float) -> None:
+        self.__all_time_high_y_token_count = y
+
+    def getAllTimeHighYTokenCount(self) -> float:
+        return self.__all_time_high_y_token_count
+    
 
 
             

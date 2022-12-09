@@ -4,20 +4,20 @@ from src.Operations import Operations
 from src.Balances import Balances
 from src.LiquidityPool import LiquidityPool
 from src.Arguments import Arguments
-from src.util.get_current_timestamp import get_current_timestamp
 from src.util.format_argument import format_argument
 from src.exceptions.insufficient_funds_exception import InsufficientFundsException
+from datetime import datetime
+from math import floor
 import sys
-import time
 import random
 import os
-from datetime import datetime
 
 def main():
     all_params = {
         "--subscriber-count": "the amonut of investors",
+        "--subscriber-growth-percentage": "a percent value (0-100) representing the user growth per day",
         "--execution-duration-in-days": "the literal runtime of the program in days",
-        "--stagnation-day": "a number from 0-1 representing the day when no new buys are made",
+        "--stagnation-day": "a number from 0-1 representing the fractional day when no new buys are made",
         "--min-transactions-per-day": "the minimum number of transactions to simulate per day",
         "--max-transactions-per-day": "the maximum number of transactions to simulate per day",
         "--rebound-trigger-percentage": "the inflation percent that will trigger an inflationary reset",
@@ -93,7 +93,7 @@ def main():
 
     # Populate balances
     user_addresses = []
-    for i in range(arguments.subscriber_count):
+    for _ in range(arguments.subscriber_count):
         address = random.getrandbits(128)
         smart_contract.setWalletBalance(address, 0)
         user_addresses.append(address)
@@ -122,6 +122,8 @@ def main():
     for day_count in range(arguments.execution_duration_in_days):
         smart_contract.addInterest()
         liquidity_pool.resetTotalDailyWithdrawl()
+
+        # Transactions per day
         for transaction_count in range(random.randint(arguments.min_transactions_per_day, arguments.max_transactions_per_day)):
             selected_address = user_addresses[random.randint(0, len(user_addresses)-1)]
             selected_operation: Operations = random.choices(list(Operations), weights=(arguments.buy_sell_ratio, 1-arguments.buy_sell_ratio), k=1)[0]
@@ -143,7 +145,9 @@ def main():
                 smart_contract.setWalletBalance(selected_address, wallet_balance)
 
                 if liquidity_pool.getPriceY() > liquidity_pool.getAllTimeHighY():
-                    liquidity_pool.setAllTimeHighY(liquidity_pool.getPriceY())                
+                    liquidity_pool.setAllTimeHighY(liquidity_pool.getPriceY())  
+                    liquidity_pool.setAllTimeHighXTokenCount(liquidity_pool.getX()) 
+                    liquidity_pool.setAllTimeHighYTokenCount(liquidity_pool.getY())
 
             try:
                 if selected_operation == Operations.SELL:
@@ -155,7 +159,6 @@ def main():
                     total_withdrawl = liquidity_pool.getTotalDailyWithdrawl(selected_address)
                     origin_wallet_balance = total_withdrawl + wallet_balance
 
-                    # TODO: Verify this formula for daily limit
                     daily_limit = origin_wallet_balance * (dtp_ratio / 100)
 
                     quantity = random.uniform(
@@ -170,9 +173,10 @@ def main():
                         wallet_balance -= quantity
                         smart_contract.setWalletBalance(selected_address, wallet_balance)
 
-                    # TODO: Review rebound implementation
                     if liquidity_pool.calculateInflationPercent() >= arguments.rebound_trigger_percentage:
-                        rebound_amount = (arguments.token_y_count / arguments.token_x_count) - (liquidity_pool.getY() / liquidity_pool.getX())
+                        rebound_amount = \
+                            liquidity_pool.getAllTimeHighXTokenCount() / (liquidity_pool.getAllTimeHighYTokenCount() / liquidity_pool.getAllTimeHighXTokenCount()) - \
+                                liquidity_pool.getX() / (liquidity_pool.getY() / liquidity_pool.getX())
                         smart_contract.triggerRebound(rebound_amount)
 
                     if not able_to_sell:
@@ -193,7 +197,13 @@ def main():
             test_wallet_value_file = open(test_wallet_value_log_path, "a")
             test_wallet_value_file.write("%f,%s\n"%(arguments.test_wallet_balance * liquidity_pool.getPriceY(), day_count + 1))
             test_wallet_value_file.close()
-   
+
+        # User growth
+        current_user_addresses = user_addresses
+        for _ in range(floor(len(current_user_addresses) * arguments.subscriber_growth_percentage / 100)):
+            address = random.getrandbits(128)
+            smart_contract.setWalletBalance(address, 0)
+            user_addresses.append(address)
     sys.exit(0)
 
 if __name__ == "__main__":

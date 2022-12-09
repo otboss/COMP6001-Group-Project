@@ -1,5 +1,6 @@
 class Arguments:
     subscriber_count: int = 0
+    subscriber_growth_percentage: float = 0.0
     execution_duration_in_days: int = 0
     stagnation_day: float = 0.0
     min_transactions_per_day: int = 0

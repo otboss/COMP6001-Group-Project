@@ -3,9 +3,10 @@ README
 Sample Command:
 ```
 python3 main.py \
---subscriber-count 10 \
+--subscriber-count 125 \
+--subscriber-growth-percentage 0.0304 \
 --execution-duration-in-days 365 \
---stagnation-day 0.3 \
+--stagnation-day 0.1 \
 --min-transactions-per-day 3000 \
 --max-transactions-per-day 4000 \
 --rebound-trigger-percentage 7.0 \
