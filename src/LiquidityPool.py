@@ -3,10 +3,11 @@ from math import trunc
 from src.exceptions.insufficient_funds_exception import InsufficientFundsException
 
 class LiquidityPool:
-    __x: float = 0
-    __y: float = 0
-    __initial_x: float = 0
-    __initial_y: float = 0
+    __x: float = 0.0
+    __y: float = 0.0
+    __initial_x: float = 0.0
+    __initial_y: float = 0.0
+    __all_time_high_y: float = 0.0
     __creation_timestamp: int = trunc(time()*1000)
     __daily_take_profit_coefficient: float = 0.3
     __total_daily_withdrawl: dict[str, float] = {}
@@ -16,6 +17,7 @@ class LiquidityPool:
         self.__y = y
         self.__initial_x = x
         self.__initial_y = y
+        self.__all_time_high_y = x / y
 
     def getK(self) -> float:
         return self.__initial_x * self.__initial_y
@@ -37,7 +39,7 @@ class LiquidityPool:
         return deltaY
 
     def calculateInflationPercent(self):
-        return 100 - (self.__x / self.__y) / (self.__initial_x / self.__initial_y) * 100
+        return (self.getAllTimeHighY() - self.getPriceY()) / self.getAllTimeHighY() * 100
 
     def calculateDailyTakeProfit(self, wallet_balance: float) -> float:
         return self.__daily_take_profit_coefficient /  (wallet_balance / self.__y * 100)
@@ -71,4 +73,12 @@ class LiquidityPool:
 
     def resetTotalDailyWithdrawl(self) -> None:
         self.__total_daily_withdrawl = {}
+
+    def setAllTimeHighY(self, y: float) -> None:
+        self.__all_time_high_y = y
+
+    def getAllTimeHighY(self) -> float:
+        return self.__all_time_high_y
+
+
             

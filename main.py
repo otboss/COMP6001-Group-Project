@@ -14,7 +14,6 @@ import os
 from datetime import datetime
 
 def main():
-    start_time: int = get_current_timestamp()
     all_params = {
         "--subscriber-count": "the amonut of investors",
         "--execution-duration-in-days": "the literal runtime of the program in days",
@@ -79,8 +78,7 @@ def main():
                 sys.exit(1)
             setattr(arguments, format_argument(param[arg]), value)
         else:
-            print(arg)
-            print("invalid argument passed. Use --help for more information")
+            print("invalid argument "+arg+" passed. Use --help for more information")
             sys.exit(1)
 
     smart_contract = Balances(
@@ -118,10 +116,8 @@ def main():
 
     test_wallet_value_log_path = "%s/%s"%(folder_path, "test-wallet-value.csv")
     test_wallet_value_file = open(test_wallet_value_log_path, "a")
-    test_wallet_value_file.write("value,timestamp\n")
+    test_wallet_value_file.write("value,day\n")
     test_wallet_value_file.close()
-
-    print("USER ADDRESSES: ",user_addresses)
 
     for day_count in range(arguments.execution_duration_in_days):
         smart_contract.addInterest()
@@ -132,11 +128,10 @@ def main():
             wallet_balance = smart_contract.getWalletBalance(selected_address)
             quantity = 0
 
-            if day_count > round(arguments.stagnation_day * arguments.execution_duration_in_days):
+            if day_count >= round(arguments.stagnation_day * arguments.execution_duration_in_days):
                 selected_operation = selected_operation = Operations.SELL
-            print("WALLET BALANCE IS: ", wallet_balance)
+
             if wallet_balance == 0 or selected_operation == Operations.BUY:
-                # print("ATTEMPTING TO BUY")
                 selected_operation = Operations.BUY
                 quantity = liquidity_pool.buyY(
                     random.randint(
@@ -145,15 +140,14 @@ def main():
                     )
                 )
                 wallet_balance += quantity
-                smart_contract.setWalletBalance(selected_address, 100)
+                smart_contract.setWalletBalance(selected_address, wallet_balance)
+
+                if liquidity_pool.getPriceY() > liquidity_pool.getAllTimeHighY():
+                    liquidity_pool.setAllTimeHighY(liquidity_pool.getPriceY())                
 
             try:
                 if selected_operation == Operations.SELL:
-                    print("SELL QUANTITY: ", quantity)
-
                     user_holding = (wallet_balance / liquidity_pool.getY() * 100)
-
-                    print("USER HOLDING IS: ", user_holding)
                 
                     dtp_ratio: float = user_holding < 1 and 1 or \
                         1 <= user_holding <= 10 and liquidity_pool.getDailyTakeProfitCoefficient() / user_holding or 0.1
@@ -161,58 +155,43 @@ def main():
                     total_withdrawl = liquidity_pool.getTotalDailyWithdrawl(selected_address)
                     origin_wallet_balance = total_withdrawl + wallet_balance
 
-
-
                     # TODO: Verify this formula for daily limit
                     daily_limit = origin_wallet_balance * (dtp_ratio / 100)
-
-                    # daily_limit = 90
 
                     quantity = random.uniform(
                         0,
                         daily_limit,
                     )
 
-                    print("TOTAL Y IN POOL: ", liquidity_pool.getY())
-                    print("dtp_ratio: ", dtp_ratio)
-                    print("WALLET BALANCE IS: ", wallet_balance)
-                    print("QUANTUTY IS: ", quantity)
-                    print("PRINT TOTAL WITHDRAWN FOR PERSON IS: ", total_withdrawl + quantity)
-                    print("DAILY LIMIT IS: ", daily_limit)
-                    print(liquidity_pool.calculateInflationPercent(), arguments.rebound_trigger_percentage)
-
-                    if quantity > 0 and total_withdrawl + quantity <= daily_limit:
-                        print("SELLING..")
+                    able_to_sell = quantity > 0 and total_withdrawl + quantity <= daily_limit
+                    if able_to_sell:
                         liquidity_pool.sellY(quantity)
                         liquidity_pool.setTotalDailyWithdrawl(selected_address, total_withdrawl + quantity)
                         wallet_balance -= quantity
                         smart_contract.setWalletBalance(selected_address, wallet_balance)
-                        print("SALE OCCURRED")
-                    else:
-                        continue
 
                     # TODO: Review rebound implementation
-                    if liquidity_pool.calculateInflationPercentForDay() >= arguments.rebound_trigger_percentage:
-                        rebound_amount = (arguments.token_y_count / arguments.token_x_count) - liquidity_pool.getY() / liquidity_pool.getX() #(self.__y / self.__x)
+                    if liquidity_pool.calculateInflationPercent() >= arguments.rebound_trigger_percentage:
+                        rebound_amount = (arguments.token_y_count / arguments.token_x_count) - (liquidity_pool.getY() / liquidity_pool.getX())
                         smart_contract.triggerRebound(rebound_amount)
-                        print("REBOUND APPLIED")                 
+
+                    if not able_to_sell:
+                        continue 
 
             except InsufficientFundsException as e:
                 print(e)
                 continue
 
-            # print("INFLATION PERCENT: ", liquidity_pool.calculateInflationPercent())
-
             price_log_file = open(price_log_path, "a")
-            price_log_file.write("%f,%f,%f,%d,%d\n"%(liquidity_pool.getPriceY(), liquidity_pool.getX(), liquidity_pool.getY(), day_count, transaction_count))
+            price_log_file.write("%f,%f,%f,%d,%d\n"%(liquidity_pool.getPriceY(), liquidity_pool.getX(), liquidity_pool.getY(), day_count + 1, transaction_count))
             price_log_file.close()
 
             transaction_log_file = open(transaction_log_path, "a")
-            transaction_log_file.write("%s,%s,%f,%s,%d,%d\n"%(selected_operation.name, selected_address, quantity, wallet_balance, day_count, transaction_count))
+            transaction_log_file.write("%s,%s,%f,%s,%d,%d\n"%(selected_operation.name, selected_address, quantity, wallet_balance, day_count + 1, transaction_count))
             transaction_log_file.close()
 
             test_wallet_value_file = open(test_wallet_value_log_path, "a")
-            test_wallet_value_file.write("%f,%s\n"%(arguments.test_wallet_balance * liquidity_pool.getPriceY(), str(datetime.now())))
+            test_wallet_value_file.write("%f,%s\n"%(arguments.test_wallet_balance * liquidity_pool.getPriceY(), day_count + 1))
             test_wallet_value_file.close()
    
     sys.exit(0)

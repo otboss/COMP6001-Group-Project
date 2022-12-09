@@ -4,7 +4,7 @@ Sample Command:
 ```
 python3 main.py \
 --subscriber-count 10 \
---execution-duration-in-days 33 \
+--execution-duration-in-days 365 \
 --stagnation-day 0.3 \
 --min-transactions-per-day 3000 \
 --max-transactions-per-day 4000 \
@@ -19,5 +19,5 @@ python3 main.py \
 --min-transaction-time 0.2 \
 --max-transaction-time 1.0 \
 --test-wallet 262738840847910164415648694271131068748 \
---test-wallet-balance 100000
+--test-wallet-balance 1000
 ```
