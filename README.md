@@ -1,9 +1,9 @@
 # Uniqo-Token-Market-Simulator
 
-## Description
+### Description
 This project serves as simulator for the Uniqo token in order to study its long term behaviour
 
-## Documentation
+### Documentation
 Documentation can be found at
 <a href="https://docs.uniqo.finance">https://docs.uniqo.finance</a>
 
