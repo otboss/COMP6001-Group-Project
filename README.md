@@ -30,4 +30,4 @@ python3 main.py \
 --test-wallet-balance 1000
 ```
 
-Once complete CSV files will be generated in an 'output' directory
+Once complete CSV files will be generated to the 'output' directory
