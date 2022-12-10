@@ -13,8 +13,8 @@ class Balances:
         for walletAddress in self.__balances:
             self.__balances[walletAddress] += self.__balances[walletAddress] * self.__interest_rate / 100
     
-    def setWalletBalance(self, walletAddress: str, balance: float) -> None:
-        self.__balances[walletAddress] = balance
+    def setWalletBalance(self, wallet_address: str, balance: float) -> None:
+        self.__balances[wallet_address] = balance
 
     def getWalletBalance(self, walletAddress: str) -> float:
         return self.__balances[walletAddress]
