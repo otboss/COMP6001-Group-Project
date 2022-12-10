@@ -1,6 +1,13 @@
-README
+# Uniqo-Token-Market-Simulator
 
-Sample Command:
+## Description
+This project serves as simulator for the Uniqo token in order to study its long term behaviour
+
+## Documentation
+Documentation can be found at
+<a href="https://docs.uniqo.finance">https://docs.uniqo.finance</a>
+
+### Sample Command:
 ```
 python3 main.py \
 --subscriber-count 125 \
@@ -22,3 +29,5 @@ python3 main.py \
 --test-wallet 262738840847910164415648694271131068748 \
 --test-wallet-balance 1000
 ```
+
+Once complete CSV files will be generated in an 'output' directory
