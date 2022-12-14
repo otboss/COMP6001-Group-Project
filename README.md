@@ -29,5 +29,6 @@ python3 main.py \
 --test-wallet 262738840847910164415648694271131068748 \
 --test-wallet-balance 1000
 ```
+The command above simulated worst case market conditions, where roughly 90% of all transacton will be sell transactions (buy-sell-ratio = 0.1) with a stagnation day set at 10% of the total days (stagnation-day = 0.1), meaning all following transaction will be sell orders.
 
 Once complete CSV files will be generated to the 'output' directory
