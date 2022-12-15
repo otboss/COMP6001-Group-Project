@@ -13,7 +13,5 @@ class Arguments:
     token_x_count: int = 0
     min_transaction_amount: int = 0
     max_transaction_amount: int = 0
-    min_transaction_time: float = 0.0
-    max_transaction_time: float = 0.0
     test_wallet: str = ""
     test_wallet_balance: float = 0.0

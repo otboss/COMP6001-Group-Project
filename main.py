@@ -28,8 +28,6 @@ def main():
         "--token-x-count": "the amount of token x to initialize the liquidity pool with",
         "--min-transaction-amount": "the minimum token y a user should buy in the simulation",
         "--max-transaction-amount": "the maximum token y a user should buy in the simulation",
-        "--min-transaction-time": "the minimum time in seconds until a new buy or sell is made",
-        "--max-transaction-time": "the maximum time in seconds until a new buy or sell is made",
         "--test-wallet": "a custom wallet to run through the simulation",
         "--test-wallet-balance": "the balance to initialize the test wallet with",
     }
