@@ -7,7 +7,6 @@ class Arguments:
     max_transactions_per_day: int = 0
     rebound_trigger_percentage: float = 0.0
     interest_rate_percentage: float = 0.0
-    interest_period_in_days: float = 0.0
     buy_sell_ratio: float = 0.0
     token_y_count: int = 0
     token_x_count: int = 0

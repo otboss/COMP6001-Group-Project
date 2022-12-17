@@ -3,11 +3,9 @@ from datetime import timedelta
 class Balances:
     __balances: dict[str, float] = {}
     __interest_rate: float = 0.0
-    __interest_period_in_days: float = 0.0
 
-    def __init__(self, interestRate: float, interestPeriod: float) -> None:
+    def __init__(self, interestRate: float) -> None:
         self.__interest_rate = interestRate
-        self.__interest_period_in_days = interestPeriod
 
     def addInterest(self) -> None:
         for walletAddress in self.__balances:
@@ -29,6 +27,3 @@ class Balances:
 
     def getInterestRate(self) -> float:
         return self.__interest_rate
-
-    def getInterestPeriod(self) -> float:
-        return self.__interest_period_in_days

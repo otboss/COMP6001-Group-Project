@@ -79,10 +79,7 @@ def main():
             print("invalid argument "+arg+" passed. Use --help for more information")
             sys.exit(1)
 
-    smart_contract = Balances(
-        arguments.interest_rate_percentage,
-        arguments.interest_period_in_days
-    )
+    smart_contract = Balances(arguments.interest_rate_percentage)
 
     liquidity_pool = LiquidityPool(
         arguments.token_x_count,

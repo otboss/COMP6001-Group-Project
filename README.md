@@ -20,7 +20,6 @@ Required parameters are:
         --max-transactions-per-day     the maximum number of transactions to simulate per day
         --rebound-trigger-percentage   the inflation percent that will trigger an inflationary reset
         --interest-rate-percentage     the percent interest rate wallets will attain
-        --interest-period-in-days      the time period in days when all accounts should attain interest
         --buy-sell-ratio               the ratio of buy to sell orders of the simulation (a number from 0-1)
         --token-y-count                the amount of token y to initialize the liquidity pool with
         --token-x-count                the amount of token x to initialize the liquidity pool with
@@ -48,7 +47,6 @@ python3 main.py \
 --max-transactions-per-day 4000 \
 --rebound-trigger-percentage 7.0 \
 --interest-rate-percentage 1.0 \
---interest-period-in-days 1 \
 --buy-sell-ratio 0.1 \
 --token-y-count 1000000000 \
 --token-x-count 1000000 \
